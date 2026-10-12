@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: kombee_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
+      POSTGRES_DB: kombee_assess
+    ports:
+      - "5432:5432"
+    volumes:
+      - kombee_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d kombee_assess"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  server:
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+    container_name: kombee_server
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+      DATABASE_SUPERUSER_URL: postgres://postgres:postgrespassword@postgres:5432/kombee_assess
+      DATABASE_URL: postgres://kombee_app:kombee_secure_pass@postgres:5432/kombee_assess
+      DATABASE_APP_USER: kombee_app
+      DATABASE_APP_PASSWORD: kombee_secure_pass
+      JWT_SECRET: super-secret-jwt-key-minimum-32-chars-long-kombee-assess
+      SESSION_COOKIE_SECRET: super-secret-cookie-key-minimum-32-chars-long
+    ports:
+      - "4000:4000"
+
+  web:
+    build:
+      context: .
+      dockerfile: web/Dockerfile
+    container_name: kombee_web
+    restart: always
+    depends_on:
+      - server
+    ports:
+      - "80:80"
+
+volumes:
+  kombee_pgdata:

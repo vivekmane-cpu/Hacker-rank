@@ -1,0 +1,26 @@
+{
+  "name": "kombee-assess",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Kombee Assess - Multi-Tenant Technical Assessment & Hiring Platform",
+  "workspaces": [
+    "server",
+    "web"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=server & npm run dev --workspace=web",
+    "dev:server": "npm run dev --workspace=server",
+    "dev:web": "npm run dev --workspace=web",
+    "build": "npm run build --workspace=server && npm run build --workspace=web",
+    "db:migrate": "npm run migrate --workspace=server",
+    "db:seed": "npm run seed --workspace=server",
+    "db:verify-rls": "npm run verify-rls --workspace=server",
+    "test": "npm run test --workspace=server",
+    "test:isolation": "npm run test:isolation --workspace=server",
+    "test:all": "npm run db:verify-rls && npm run test:isolation --workspace=server && npm run test --workspace=server"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}
